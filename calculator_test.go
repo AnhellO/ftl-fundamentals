@@ -2,8 +2,12 @@ package calculator_test
 
 import (
 	"calculator"
+	"fmt"
 	"math"
+	"math/rand"
+	"os"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -12,6 +16,11 @@ type testCase struct {
 	name          string
 	a, b, want    float64
 	expectedError bool
+}
+
+func TestMain(m *testing.M) {
+	rand.Seed(time.Now().UTC().UnixNano())
+	os.Exit(m.Run())
 }
 
 func TestAdd(t *testing.T) {
@@ -29,6 +38,23 @@ func TestAdd(t *testing.T) {
 		got := calculator.Add(tc.a, tc.b)
 		if tc.want != got {
 			t.Errorf("Case -> %s\nAdd(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
+		}
+	}
+}
+
+func TestAddRandom(t *testing.T) {
+	t.Parallel()
+	testCases := make([]testCase, 0)
+
+	for i := 0; i < 100; i++ {
+		a, b := (rand.Float64()*1000)+1, (rand.Float64()*1000)+1
+		testCases = append(testCases, testCase{name: fmt.Sprintf("Random test %d", i+1), a: a, b: b, want: a + b})
+	}
+
+	for _, tc := range testCases {
+		got := calculator.Add(tc.a, tc.b)
+		if tc.want != got {
+			t.Errorf("Case -> %s\nAdd Random(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
 		}
 	}
 }
@@ -52,6 +78,23 @@ func TestSubtract(t *testing.T) {
 	}
 }
 
+func TestSubtractRandom(t *testing.T) {
+	t.Parallel()
+	testCases := make([]testCase, 0)
+
+	for i := 0; i < 100; i++ {
+		a, b := (rand.Float64()*1000)+1, (rand.Float64()*1000)+1
+		testCases = append(testCases, testCase{name: fmt.Sprintf("Random test %d", i+1), a: a, b: b, want: a - b})
+	}
+
+	for _, tc := range testCases {
+		got := calculator.Subtract(tc.a, tc.b)
+		if tc.want != got {
+			t.Errorf("Case -> %s\nSubtract Random(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
+		}
+	}
+}
+
 func TestMultiply(t *testing.T) {
 	t.Parallel()
 	testCases := []testCase{
@@ -67,6 +110,23 @@ func TestMultiply(t *testing.T) {
 		got := calculator.Multiply(tc.a, tc.b)
 		if tc.want != got {
 			t.Errorf("Case -> %s\nMultiply(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
+		}
+	}
+}
+
+func TestMultiplyRandom(t *testing.T) {
+	t.Parallel()
+	testCases := make([]testCase, 0)
+
+	for i := 0; i < 100; i++ {
+		a, b := (rand.Float64()*1000)+1, (rand.Float64()*1000)+1
+		testCases = append(testCases, testCase{name: fmt.Sprintf("Random test %d", i+1), a: a, b: b, want: a * b})
+	}
+
+	for _, tc := range testCases {
+		got := calculator.Multiply(tc.a, tc.b)
+		if tc.want != got {
+			t.Errorf("Case -> %s\nMultiply Random(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
 		}
 	}
 }

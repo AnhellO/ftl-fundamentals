@@ -23,6 +23,12 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+const tolerance = .000001
+
+var opt = cmp.Comparer(func(x, y float64) bool {
+	return math.IsNaN(x/y) || math.Abs(x/y) > tolerance
+})
+
 func TestAdd(t *testing.T) {
 	t.Parallel()
 	testCases := []testCase{
@@ -142,11 +148,6 @@ func TestDivide(t *testing.T) {
 		{name: "Divide two fractional numbers", a: -505.5, b: -10.5, want: 48.142857},
 	}
 
-	const tolerance = .000001
-	opt := cmp.Comparer(func(x, y float64) bool {
-		return math.Abs(x/y) > tolerance
-	})
-
 	for _, tc := range testCases {
 		got, err := calculator.Divide(tc.a, tc.b)
 		errReceived := err != nil
@@ -156,6 +157,28 @@ func TestDivide(t *testing.T) {
 
 		if !tc.expectedError && !cmp.Equal(tc.want, got, opt) {
 			t.Errorf("Case -> %s\nDivide(%f, %f): want %f, got %f", tc.name, tc.a, tc.b, tc.want, got)
+		}
+	}
+}
+
+func TestSquareRoot(t *testing.T) {
+	t.Parallel()
+	testCases := []testCase{
+		{name: "Square root positive number", a: 4, want: 2},
+		{name: "Square root negative number", a: -9, want: -1, expectedError: true},
+		{name: "Square root fractional number", a: 5, want: 2.236068},
+		{name: "Square root zero", a: 0, want: 0},
+	}
+
+	for _, tc := range testCases {
+		got, err := calculator.SquareRoot(tc.a)
+		errReceived := err != nil
+		if tc.expectedError != errReceived {
+			t.Fatalf("Case -> %s\nSquareRoot(%f): unexpected error status '%v'", tc.name, tc.a, errReceived)
+		}
+
+		if !tc.expectedError && !cmp.Equal(tc.want, got, opt) {
+			t.Errorf("Case -> %s\nSquareRoot(%f): want %f, got %f", tc.name, tc.a, tc.want, got)
 		}
 	}
 }
